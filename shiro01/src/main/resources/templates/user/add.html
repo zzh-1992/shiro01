@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.thymeleaf.org/thymeleaf-extras-shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>BackStage</title>
+</head>
+<body>
+<div shiro:hasPermission="user:add">
+    <h3>add</h3>
+    <a th:href="@{/logout}">======================add 后台1======================</a>
+</div>
+
+<div shiro:hasPermission="user:delete">
+    <h3>delete</h3>
+    <a th:href="@{/logout}">======================add 后台1======================</a>
+</div>
+
+
+</body>
+</html>

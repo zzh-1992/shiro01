@@ -1,6 +1,6 @@
 package com.grapefruit.shiro.config;
 
-
+import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
 import com.grapefruit.shiro.filter.MyLogoutFilter;
 import com.grapefruit.shiro.realm.MyShiroRealm;
 import org.apache.shiro.mgt.SecurityManager;
@@ -11,9 +11,7 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import javax.servlet.Filter;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * @author 柚子苦瓜茶
@@ -24,15 +22,16 @@ public class ShiroConfiguration {
 
     /**
      * 领域 安全组件
-     * @return
+     *
+     * @return Realm
      */
     @Bean
-    public Realm realm(){
+    public Realm realm() {
         return new MyShiroRealm();
     }
 
     @Bean
-    public org.apache.shiro.mgt.SecurityManager securityManager(Realm realm){
+    public org.apache.shiro.mgt.SecurityManager securityManager(Realm realm) {
         DefaultWebSecurityManager defaultWebSecurityManager = new DefaultWebSecurityManager();
         defaultWebSecurityManager.setRealm(realm);
         return defaultWebSecurityManager;
@@ -40,18 +39,19 @@ public class ShiroConfiguration {
 
     /**
      * 过滤器的注册器
+     *
      * @param myLogoutFilter
      * @return
      */
     @Bean
-    public FilterRegistrationBean filterRegistrationBean(MyLogoutFilter myLogoutFilter){
+    public FilterRegistrationBean filterRegistrationBean(MyLogoutFilter myLogoutFilter) {
         FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(myLogoutFilter);
         filterRegistrationBean.setEnabled(false);
         return filterRegistrationBean;
     }
 
     @Bean
-    public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager){
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
@@ -59,21 +59,24 @@ public class ShiroConfiguration {
         filters.put("logout",new MyLogoutFilter());
         shiroFilterFactoryBean.setFilters(filters);*/
 
-        LinkedHashMap<String,String> linkedHashMap = new LinkedHashMap<String,String>();
+        LinkedHashMap<String, String> linkedHashMap = new LinkedHashMap<String, String>();
 
         //为了测试
-        linkedHashMap.put("/bg/bg1","perms[bg:bg1]");
-        linkedHashMap.put("/bg/bg2","perms[bg:bg2]");
+        //linkedHashMap.put("/bg/bg1", "perms[bg:bg1]");
+        //linkedHashMap.put("/bg/bg2", "perms[bg:bg2]");
+
+        //linkedHashMap.put("/user:add", "perms[user:add]");
+        //linkedHashMap.put("/user:delete", "perms[user:delete]");
 
         //放行(无需认证)
-        linkedHashMap.put("/mess","anon");
-        linkedHashMap.put("/MyLogoutRedirectURL","anon");
-        linkedHashMap.put("/login","anon");
+        linkedHashMap.put("/mess", "anon");
+        linkedHashMap.put("/MyLogoutRedirectURL", "anon");
+        linkedHashMap.put("/login", "anon");
         //登出设置
-        linkedHashMap.put("/logout","myLogoutFilter");
+        linkedHashMap.put("/logout", "myLogoutFilter");
 
         //扫尾
-        linkedHashMap.put("/**","authc");
+        linkedHashMap.put("/**", "authc");
         //anon: 无需认证即可访问
         //authc: 需要认证才可访问
         //user: 点击“记住我”功能可访问
@@ -90,11 +93,18 @@ public class ShiroConfiguration {
 
     /**
      * 配置自定义登出过滤器
+     *
      * @return 自定义登出过滤器实例
      */
     @Bean()
-    public MyLogoutFilter myLogoutFilter(){
+    public MyLogoutFilter myLogoutFilter() {
         return new MyLogoutFilter();
+    }
+
+    // 整合shiro thymeleaf
+    @Bean
+    public ShiroDialect getShiroDialect(){
+        return new ShiroDialect();
     }
 }
 
