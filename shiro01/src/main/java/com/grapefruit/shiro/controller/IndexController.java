@@ -17,26 +17,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class IndexController {
 
     @GetMapping("/")
-    public String toIndex(){
+    public String toIndex() {
         return "login";
     }
 
     @RequestMapping("/login")
-    public String loginAction(@RequestParam String username, @RequestParam String password, Model model){
+    public String loginAction(@RequestParam String username, @RequestParam String password, Model model) {
         String mess = "";
         System.out.println("=====开始登陆验证=====");
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken();
         usernamePasswordToken.setUsername(username);
         usernamePasswordToken.setPassword(password.toCharArray());
-        try{
+        try {
             System.out.println("====/login=========开始尝试登陆成功=============");
             subject.login(usernamePasswordToken);
-            return "redirect:bg/bg2";
-            //return "bg/bg2";
+            //return "redirect:bg/bg2";
+            return "user/add";
 
 
-        }catch (LockedAccountException la) {
+        } catch (LockedAccountException la) {
             mess = la.getMessage();
             System.out.println("LockedAccountException");
 
@@ -79,7 +79,7 @@ public class IndexController {
     }*/
 
     @GetMapping("/MyLogoutRedirectURL")
-    public String logout00(){
+    public String logout00() {
         System.out.println("==================MyLogoutRedirectURL===========");
         return "MyLogoutRedirectURL";
     }
