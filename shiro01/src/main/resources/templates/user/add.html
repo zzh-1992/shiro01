@@ -11,6 +11,11 @@
     <a th:href="@{/logout}">======================add 后台1======================</a>
 </div>
 
+<div shiro:hasPermission="user:update">
+    <h3>update</h3>
+    <a th:href="@{/logout}">======================add 后台1======================</a>
+</div>
+
 <div shiro:hasPermission="user:delete">
     <h3>delete</h3>
     <a th:href="@{/logout}">======================add 后台1======================</a>

@@ -1,10 +1,17 @@
 package com.grapefruit.shiro.realm;
 
-import org.apache.shiro.authc.*;
+import com.grapefruit.shiro.entity.Grape;
+import com.grapefruit.shiro.mapper.GrapeMapper;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationInfo;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.SimpleAuthenticationInfo;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author 柚子苦瓜茶
@@ -12,11 +19,22 @@ import org.apache.shiro.subject.PrincipalCollection;
  */
 public class MyShiroRealm extends AuthorizingRealm {
 
+    private ThreadLocal<Grape> threadLocal = new ThreadLocal<>();
+
+    @Autowired
+    private GrapeMapper mapper;
+
+    public Grape getUserInfo(String name) {
+        Grape grape = mapper.selectGrape(name);
+        threadLocal.set(grape);
+        return grape;
+    }
+
     /**
      * 用户认证
      *
      * @param token
-     * @return
+     * @return AuthenticationInfo
      * @throws AuthenticationException
      */
     @Override
@@ -29,12 +47,14 @@ public class MyShiroRealm extends AuthorizingRealm {
         String password = new String(usernamePasswordToken.getPassword());
 
         //从数据库获取用户信息 mysql
-        // 对比用户信息
+        Grape grape = getUserInfo(username);
 
-        if (username == null) {
+        // 对比用户信息
+        if (grape.getName() == null || !grape.getPassword().equals(password)) {
             return null;
         } else {
-            SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(username, password, getName());
+            SimpleAuthenticationInfo simpleAuthenticationInfo = new SimpleAuthenticationInfo(username, password,
+                    getName());
             System.out.println("===========认证转授权==========");
             return simpleAuthenticationInfo;
         }
@@ -52,27 +72,15 @@ public class MyShiroRealm extends AuthorizingRealm {
         String username = principals.getPrimaryPrincipal().toString();
         //User User = (User)principals.getPrimaryPrincipal().toString();
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
-        if (username.equals("123")) {
-            System.out.println("开始--123--授权------");
-            simpleAuthorizationInfo.addStringPermission("bg:bg1");
-            simpleAuthorizationInfo.addStringPermission("bg:bg2");
-            return simpleAuthorizationInfo;
-        }
-        if (username.equals("789")) {
-            System.out.println("开始--789--授权------");
-            simpleAuthorizationInfo.addStringPermission("bg:bg2");
-            simpleAuthorizationInfo.addStringPermission("bg:bg1");
-            simpleAuthorizationInfo.addStringPermission("user:add");
-            return simpleAuthorizationInfo;
-        }
-        if (username.equals("13632422349")) {
-            System.out.println("开始--1363222329--授权------");
-            simpleAuthorizationInfo.addStringPermission("user:add");
-            simpleAuthorizationInfo.addStringPermission("user:delete");
-            return simpleAuthorizationInfo;
-        }
 
+        // 从线程获取用户
+        Grape grape = threadLocal.get();
+
+        String permission = grape.getPermission();
+        String[] strings = permission.split(",");
+        for (String s : strings) {
+            simpleAuthorizationInfo.addStringPermission(s);
+        }
         return simpleAuthorizationInfo;
-
     }
 }

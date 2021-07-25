@@ -1,7 +1,13 @@
 package com.grapefruit.shiro.controller;
 
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.*;
+import org.apache.shiro.authc.DisabledAccountException;
+import org.apache.shiro.authc.ExcessiveAttemptsException;
+import org.apache.shiro.authc.ExpiredCredentialsException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.LockedAccountException;
+import org.apache.shiro.authc.UnknownAccountException;
+import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,8 +29,8 @@ public class IndexController {
 
     @RequestMapping("/login")
     public String loginAction(@RequestParam String username, @RequestParam String password, Model model) {
-        String mess = "";
-        System.out.println("=====开始登陆验证=====");
+        String mess;
+
         Subject subject = SecurityUtils.getSubject();
         UsernamePasswordToken usernamePasswordToken = new UsernamePasswordToken();
         usernamePasswordToken.setUsername(username);
@@ -32,9 +38,7 @@ public class IndexController {
         try {
             System.out.println("====/login=========开始尝试登陆成功=============");
             subject.login(usernamePasswordToken);
-            //return "redirect:bg/bg2";
             return "user/add";
-
 
         } catch (LockedAccountException la) {
             mess = la.getMessage();
